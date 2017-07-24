@@ -1102,3 +1102,6 @@ let isa_tfunc = Core.Inference.t_ffunc_val[
         @test isa_tfunc(c, Type{Complex{T}} where T) === Const(false)
     end
 end
+
+f_ADD_PR_NUMBER(x) = (Int8(0), Int16(0), Int32(0), Int64(0))[x]
+@test Base.return_types(f_ADD_PR_NUMBER, Tuple{Int})[1] <: Signed
