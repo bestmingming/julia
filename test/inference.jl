@@ -1105,3 +1105,5 @@ end
 
 f_ADD_PR_NUMBER(x) = (Int8(0), Int16(0), Int32(0), Int64(0))[x]
 @test Base.return_types(f_ADD_PR_NUMBER, Tuple{Int})[1] <: Signed
+g_ADD_PR_NUMBER(x,y,z) = x ? y ? z ? (1,) : (1,1.0) : (1,1) : (1,1.0,1)
+@test Base.return_types(g_ADD_PR_NUMBER, Tuple{Bool,Bool,Bool})[1] <: Tuple{Int64,Vararg{Real}}
