@@ -466,14 +466,6 @@ julia> exp10(0.2)
 exp10
 
 """
-    partialsort(v, k, [by=<transform>,] [lt=<comparison>,] [rev=false])
-
-Variant of [`partialsort!`](@ref) which copies `v` before partially sorting it, thereby returning the
-same thing as `partialsort!` but leaving `v` unmodified.
-"""
-partialsort
-
-"""
     accept(server[,client])
 
 Accepts a connection on the given server and returns a connection to the client. An
@@ -634,59 +626,6 @@ julia> getfield(a, :num)
 ```
 """
 getfield
-
-"""
-    partialsort!(v, k, [by=<transform>,] [lt=<comparison>,] [rev=false])
-
-Partially sort the vector `v` in place, according to the order specified by `by`, `lt` and
-`rev` so that the value at index `k` (or range of adjacent values if `k` is a range) occurs
-at the position where it would appear if the array were fully sorted via a non-stable
-algorithm. If `k` is a single index, that value is returned; if `k` is a range, an array of
-values at those indices is returned. Note that `partialsort!` does not fully sort the input
-array.
-
-# Examples
-```jldoctest
-julia> a = [1, 2, 4, 3, 4]
-5-element Array{Int64,1}:
- 1
- 2
- 4
- 3
- 4
-
-julia> partialsort!(a, 4)
-4
-
-julia> a
-5-element Array{Int64,1}:
- 1
- 2
- 3
- 4
- 4
-
-julia> a = [1, 2, 4, 3, 4]
-5-element Array{Int64,1}:
- 1
- 2
- 4
- 3
- 4
-
-julia> partialsort!(a, 4, rev=true)
-2
-
-julia> a
-5-element Array{Int64,1}:
- 4
- 4
- 3
- 2
- 1
-```
-"""
-partialsort!
 
 """
     Float64(x [, mode::RoundingMode])
@@ -1011,19 +950,6 @@ Get the current position of a stream.
 position
 
 """
-    partialsortperm(v, k, [alg=<algorithm>,] [by=<transform>,] [lt=<comparison>,] [rev=false])
-
-Return a partial permutation of the vector `v`, according to the order specified by
-`by`, `lt` and `rev`, so that `v[output]` returns the first `k` (or range of adjacent values
-if `k` is a range) values of a fully sorted version of `v`. If `k` is a single index
-(Integer), an array of the first `k` indices is returned; if `k` is a range, an array of
-those indices is returned.
-
-Note that this is equivalent to, but more efficient than, calling `sortperm(...)[k]`.
-"""
-partialsortperm
-
-"""
     reinterpret(type, A)
 
 Change the type-interpretation of a block of memory.
@@ -1108,14 +1034,6 @@ big
 Compute a type that contains both `T` and `S`.
 """
 typejoin
-
-"""
-    partialsortperm!(ix, v, k, [alg=<algorithm>,] [by=<transform>,] [lt=<comparison>,] [rev=false,] [initialized=false])
-
-Like [`partialsortperm`](@ref), but accepts a preallocated index vector `ix`. If `initialized` is `false`
-(the default), ix is initialized to contain the values `1:length(ix)`.
-"""
-partialsortperm!
 
 """
     precompile(f,args::Tuple{Vararg{Any}})
