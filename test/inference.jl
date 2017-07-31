@@ -1076,7 +1076,7 @@ let isa_tfunc = Core.Inference.t_ffunc_val[
     @test isa_tfunc(Array, Const(AbstractArray)) === Const(true)
     @test isa_tfunc(Array, Type{AbstractArray}) === Const(true)
     @test isa_tfunc(Array, Type{AbstractArray{Int}}) == Bool
-    @test isa_tfunc(Array{Real}, Type{AbstractArray{Int}}) === Bool # could be improved
+    @test isa_tfunc(Array{Real}, Type{AbstractArray{Int}}) === Const(false)
     @test isa_tfunc(Array{Real, 2}, Const(AbstractArray{Real, 2})) === Const(true)
     @test isa_tfunc(Array{Real, 2}, Const(AbstractArray{Int, 2})) === Const(false)
     @test isa_tfunc(DataType, Int) === Bool # could be improved
@@ -1101,4 +1101,51 @@ let isa_tfunc = Core.Inference.t_ffunc_val[
         @test isa_tfunc(c, Type{Complex}) === Const(false)
         @test isa_tfunc(c, Type{Complex{T}} where T) === Const(false)
     end
+    @test isa_tfunc(Val{1}, Type{Val{T}} where T) === Bool
+    @test isa_tfunc(Val{1}, DataType) === Bool
+    @test isa_tfunc(Any, Const(Any)) === Const(true)
+    @test isa_tfunc(Any, Union{}) === Const(false)
+    @test isa_tfunc(Any, Type{Union{}}) === Bool
+    @test isa_tfunc(Union{Int64, Float64}, Type{Real}) === Const(true)
+    @test isa_tfunc(Union{Int64, Float64}, Type{Integer}) === Bool
+    @test isa_tfunc(Union{Int64, Float64}, Type{AbstractArray}) === Const(false)
+end
+
+let subtype_tfunc = Core.Inference.t_ffunc_val[
+        findfirst(Core.Inference.t_ffunc_key, <:)][3]
+    @test subtype_tfunc(Type{<:Array}, Const(AbstractArray)) === Const(true)
+    @test subtype_tfunc(Type{<:Array}, Type{AbstractArray}) === Const(true)
+    @test subtype_tfunc(Type{<:Array}, Type{AbstractArray{Int}}) == Bool
+    @test subtype_tfunc(Type{<:Array{Real}}, Type{AbstractArray{Int}}) === Const(false)
+    @test subtype_tfunc(Type{<:Array{Real, 2}}, Const(AbstractArray{Real, 2})) === Const(true)
+    @test subtype_tfunc(Type{Array{Real, 2}}, Const(AbstractArray{Int, 2})) === Const(false)
+    @test subtype_tfunc(DataType, Int) === Bool
+    @test subtype_tfunc(DataType, Const(Type{Int})) === Bool
+    @test subtype_tfunc(DataType, Const(Type{Array})) === Bool
+    @test subtype_tfunc(UnionAll, Const(Type{Int})) === Bool
+    @test subtype_tfunc(UnionAll, Const(Type{Array})) === Bool
+    @test subtype_tfunc(Union, Const(Union{Float32, Float64})) === Bool
+    @test subtype_tfunc(Union, Type{Union}) === Bool
+    @test subtype_tfunc(Union{}, Const(Int)) === Const(true) # any result is ok
+    @test subtype_tfunc(Union{}, Const(Union{})) === Const(true) # any result is ok
+    @test subtype_tfunc(Union{}, typeof(Union{})) === Bool # any result is ok
+    @test subtype_tfunc(Union{}, Union{}) === Const(true) # any result is ok
+    @test subtype_tfunc(Union{}, Type{typeof(Union{})}) === Const(true) # any result is ok
+    @test subtype_tfunc(Union{}, Const(typeof(Union{}))) === Const(true) # any result is ok
+    let c = Conditional(Core.SlotNumber(0), Const(Union{}), Const(Union{}))
+        @test subtype_tfunc(c, Const(Bool)) === Bool # any result is ok
+    end
+    @test subtype_tfunc(Type{Val{1}}, Type{Val{T}} where T) === Bool
+    @test subtype_tfunc(Type{Val{1}}, DataType) === Bool
+    @test subtype_tfunc(Type, Type{Val{T}} where T) === Bool
+    @test subtype_tfunc(Type{Val{T}} where T, Type) === Bool
+    @test subtype_tfunc(Any, Const(Any)) === Const(true)
+    @test subtype_tfunc(Any, Union{}) === Const(false)
+    @test subtype_tfunc(Type{Any}, Const(Any)) === Const(true)
+    @test subtype_tfunc(Type{Any}, Union{}) === Const(false)
+    @test subtype_tfunc(Type, Union{}) === Const(false)
+    @test subtype_tfunc(Type, Type{Union{}}) === Bool
+    @test subtype_tfunc(Union{Type{Int64}, Type{Float64}}, Type{Real}) === Const(true)
+    @test subtype_tfunc(Union{Type{Int64}, Type{Float64}}, Type{Integer}) === Bool
+    @test subtype_tfunc(Union{Type{Int64}, Type{Float64}}, Type{AbstractArray}) === Const(false)
 end
