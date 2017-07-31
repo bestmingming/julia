@@ -682,7 +682,7 @@ those indices is returned.
 Note that this is equivalent to, but more efficient than, calling `sortperm(...)[k]`.
 """
 partialsortperm(v::AbstractVector, k::Union{Integer,OrdinalRange}; kwargs...) =
-    partialsortperm!(similar(Vector{eltype(k)}, indices(v,1)), v, k; kwargs..., initialized=false)
+    copy(partialsortperm!(similar(Vector{eltype(k)}, indices(v,1)), v, k; kwargs..., initialized=false))
 
 """
     partialsortperm!(ix, v, k, [alg=<algorithm>,] [by=<transform>,] [lt=<comparison>,] [rev=false,] [initialized=false])
@@ -705,7 +705,12 @@ function partialsortperm!(ix::AbstractVector{<:Integer}, v::AbstractVector,
 
     # do partial quicksort
     sort!(ix, PartialQuickSort(k), Perm(ord(lt, by, rev, order), v))
-    return ix[k]
+
+    if k isa Integer
+        return ix[k]
+    else
+        return view(ix, k)
+    end
 end
 
 ## sortperm: the permutation to sort an array ##
